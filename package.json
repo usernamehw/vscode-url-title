@@ -1,0 +1,93 @@
+{
+	"name": "url-title",
+	"displayName": "Url Title",
+	"description": "Fetch html page title from url and make a markdown link out of it.",
+	"version": "0.1.0",
+	"publisher": "usernamehw",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.60.0"
+	},
+	"extensionKind": [
+		"ui",
+		"workspace"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usernamehw/vscode-url-title"
+	},
+	"icon": "img/icon.png",
+	"qna": false,
+	"bugs": {
+		"url": "https://github.com/usernamehw/vscode-url-title/issues"
+	},
+	"keywords": [
+		"title",
+		"url",
+		"link",
+		"get",
+		"fetch",
+		"resolve",
+		"expand",
+		"infer"
+	],
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:urlTitle.run"
+	],
+	"main": "./dist/extension",
+	"contributes": {
+		"commands": [
+			{
+				"command": "urlTitle.run",
+				"title": "Run",
+				"category": "Url Title"
+			}
+		],
+		"configuration": {
+			"title": "Url Title",
+			"properties": {
+				"urlTitle.replaceExistingTitle": {
+					"type": "boolean",
+					"markdownDescription": "When checked - and the markdown link already has brackets & title - still fetch the new title and replace the old one.",
+					"default": true
+				},
+				"urlTitle.removeDomainFromTitle": {
+					"type": "boolean",
+					"markdownDescription": "When checked - try to remove the domain name from the end of the title.",
+					"default": true
+				},
+				"urlTitle.removeFromTitle": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"markdownDescription": "Always remove these strings from the fetched title.",
+					"default": []
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "webpack --mode production --color",
+		"watch": "webpack --mode development --watch --stats minimal"
+	},
+	"devDependencies": {
+		"@soda/friendly-errors-webpack-plugin": "^1.8.1",
+		"@types/node": "14.x",
+		"@types/vscode": "^1.60.0",
+		"@typescript-eslint/eslint-plugin": "^5.29.0",
+		"@typescript-eslint/parser": "^5.29.0",
+		"eslint": "^8.18.0",
+		"eslint-plugin-no-autofix": "^1.2.3",
+		"ts-loader": "^9.3.0",
+		"typescript": "^4.7.4",
+		"webpack": "^5.73.0",
+		"webpack-cli": "^4.10.0"
+	},
+	"dependencies": {
+		"cheerio": "^1.0.0-rc.11"
+	}
+}
