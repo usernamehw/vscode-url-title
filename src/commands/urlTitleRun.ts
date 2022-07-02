@@ -88,12 +88,12 @@ function replaceLinkAtRangeEdit(edit: WorkspaceEdit, document: TextDocument, tar
 			const urlRange = new Range(lineNumber, matchIndex, lineNumber, matchIndex + match[0].length);
 			const urlTitleRange = new Range(lineNumber, matchIndex + 1 /* left square bracket */, lineNumber, matchIndex + match[1].length + 1);
 			if (urlRange.intersection(targetLink.range)) {
-				edit.replace(document.uri, urlTitleRange, title);
+				edit.replace(document.uri, urlTitleRange, replaceNewlines(title));
 				break;
 			}
 		}
 	} else {
-		edit.replace(document.uri, targetLink.range, `[${escapeSquareBrackets(title)}](${targetLink.target?.toString(true)})`);
+		edit.replace(document.uri, targetLink.range, `[${escapeSquareBrackets(replaceNewlines(title))}](${targetLink.target?.toString(true)})`);
 	}
 }
 /**
@@ -114,6 +114,11 @@ function isExistingMarkdownLink(document: TextDocument, targetLink: DocumentLink
 		return true;
 	}
 	return false;
+}
+
+function replaceNewlines(str: string): string {
+	return str.replace(/[\t\r\n]+/g, ' ')
+		.replace(/ +/g, ' ');
 }
 
 /**
