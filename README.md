@@ -1,3 +1,6 @@
+[![Version](https://img.shields.io/visual-studio-marketplace/v/usernamehw.url-title)](https://marketplace.visualstudio.com/items?itemName=usernamehw.url-title)
+[![Installs](https://img.shields.io/visual-studio-marketplace/i/usernamehw.url-title)](https://marketplace.visualstudio.com/items?itemName=usernamehw.url-title)
+[![Rating](https://img.shields.io/visual-studio-marketplace/r/usernamehw.url-title)](https://marketplace.visualstudio.com/items?itemName=usernamehw.url-title)
 
 ![demo](img/demo.gif)
 
