@@ -2,10 +2,14 @@ import { load } from 'cheerio';
 import https from 'https';
 import { commands, DocumentLink, Position, Range, TextDocument, TextEditor, window, workspace, WorkspaceEdit } from 'vscode';
 import { $config } from '../extension';
+import { Asciidoc } from '../Asciidoc';
 
 export async function urlTitleRun(editor: TextEditor) {
 	const targetLinks = await getLinksAtSelections(editor);
-	const titles = await Promise.all(targetLinks.map(async link => getTitleFromUrl(link.target?.toString(true))));
+	const titles = await Promise.all(targetLinks.map(async link => {
+		const urlString = Asciidoc.isAsciidocFile(editor.document) ? Asciidoc.getAsciidocUrl(link.target!.toString(true)) : link.target?.toString(true);
+		return getTitleFromUrl(urlString);
+	}));
 	const edit = new WorkspaceEdit();
 
 	for (const [index, targetLink] of targetLinks.entries()) {
@@ -70,12 +74,18 @@ async function getTitleFromUrl(url?: string): Promise<string> {
 	});
 }
 
-function replaceLinkAtRangeEdit(edit: WorkspaceEdit, document: TextDocument, targetLink: DocumentLink, title: string): void {
+function replaceLinkAtRangeEdit(edit: WorkspaceEdit, document: TextDocument, targetLink: DocumentLink, fetchedUrlTitle: string): void {
 	if (targetLink.target?.scheme !== 'http' &&
 		targetLink.target?.scheme !== 'https') {
 		return;
 	}
-	if (isExistingMarkdownLink(document, targetLink)) {
+
+	if (Asciidoc.isAsciidocFile(document)) {
+		edit.replace(document.uri, targetLink.range, `${Asciidoc.getAsciidocUrl(targetLink.target.toString(true))}[${escapeSquareBrackets(fetchedUrlTitle)}]`);
+		return;
+	}
+
+	if (isExistingMarkdownLinkTitle(document, targetLink)) {
 		if (!$config.replaceExistingTitle) {
 			return;
 		}
@@ -88,19 +98,19 @@ function replaceLinkAtRangeEdit(edit: WorkspaceEdit, document: TextDocument, tar
 			const urlRange = new Range(lineNumber, matchIndex, lineNumber, matchIndex + match[0].length);
 			const urlTitleRange = new Range(lineNumber, matchIndex + 1 /* left square bracket */, lineNumber, matchIndex + match[1].length + 1);
 			if (urlRange.intersection(targetLink.range)) {
-				edit.replace(document.uri, urlTitleRange, replaceNewlines(title));
+				edit.replace(document.uri, urlTitleRange, replaceNewlines(fetchedUrlTitle));
 				break;
 			}
 		}
 	} else {
-		edit.replace(document.uri, targetLink.range, `[${escapeSquareBrackets(replaceNewlines(title))}](${targetLink.target?.toString(true)})`);
+		edit.replace(document.uri, targetLink.range, `[${escapeSquareBrackets(replaceNewlines(fetchedUrlTitle))}](${targetLink.target?.toString(true)})`);
 	}
 }
 /**
  * Check if the link already has markdown link syntax (brackets around).
  * - not 100%, but likely
  */
-function isExistingMarkdownLink(document: TextDocument, targetLink: DocumentLink): boolean {
+function isExistingMarkdownLinkTitle(document: TextDocument, targetLink: DocumentLink): boolean {
 	const range = targetLink.range;
 	const rangeAroundLink = range.with(
 		new Position(range.start.line, range.start.character - (range.start.character > 1 ? 2 : 0)),
