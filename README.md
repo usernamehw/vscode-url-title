@@ -21,6 +21,3 @@
 |urlTitle.removeDomainFromTitle|**true**|When checked - try to remove the domain name from the end of the title.|
 |urlTitle.removeFromTitle|\[\]|Always remove these strings from the fetched title.|
 <!-- SETTINGS_END -->
-
-
-Also, works in AsciiDoc files (`.adoc` & `.asciidoc`).

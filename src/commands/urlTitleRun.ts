@@ -1,13 +1,13 @@
 import { load } from 'cheerio';
 import https from 'https';
 import { commands, DocumentLink, Position, Range, TextDocument, TextEditor, window, workspace, WorkspaceEdit } from 'vscode';
-import { AsciiDoc } from '../AsciiDoc';
 import { $config } from '../extension';
+import { Asciidoc } from '../Asciidoc';
 
 export async function urlTitleRun(editor: TextEditor) {
 	const targetLinks = await getLinksAtSelections(editor);
 	const titles = await Promise.all(targetLinks.map(async link => {
-		const urlString = AsciiDoc.isAsciidocFile(editor.document) ? AsciiDoc.getAsciidocUrl(link.target!.toString(true)) : link.target?.toString(true);
+		const urlString = Asciidoc.isAsciidocFile(editor.document) ? Asciidoc.getAsciidocUrl(link.target!.toString(true)) : link.target?.toString(true);
 		return getTitleFromUrl(urlString);
 	}));
 	const edit = new WorkspaceEdit();
@@ -80,8 +80,8 @@ function replaceLinkAtRangeEdit(edit: WorkspaceEdit, document: TextDocument, tar
 		return;
 	}
 
-	if (AsciiDoc.isAsciidocFile(document)) {
-		edit.replace(document.uri, targetLink.range, `${AsciiDoc.getAsciidocUrl(targetLink.target.toString(true))}[${escapeSquareBrackets(fetchedUrlTitle)}]`);
+	if (Asciidoc.isAsciidocFile(document)) {
+		edit.replace(document.uri, targetLink.range, `${Asciidoc.getAsciidocUrl(targetLink.target.toString(true))}[${escapeSquareBrackets(fetchedUrlTitle)}]`);
 		return;
 	}
 
