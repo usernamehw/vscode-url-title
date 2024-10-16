@@ -22,4 +22,4 @@
 |urlTitle.removeFromTitle|\[\]|Always remove these strings from the fetched title.|
 <!-- SETTINGS_END -->
 
-Also, works in AsciiDoc files (`.adoc` & `.asciidoc`).
+Also, works in AsciiDoc (`.adoc` & `.asciidoc`) and html files (`.html`).

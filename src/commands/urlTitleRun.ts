@@ -1,15 +1,17 @@
 import { load } from 'cheerio';
 import https from 'https';
 import { commands, DocumentLink, Position, Range, TextDocument, TextEditor, window, workspace, WorkspaceEdit } from 'vscode';
+import { AsciidocFile } from '../AsciidocFile';
 import { $config } from '../extension';
-import { Asciidoc } from '../Asciidoc';
+import { HtmlFile } from '../htmlFile';
 
 export async function urlTitleRun(editor: TextEditor) {
 	const targetLinks = await getLinksAtSelections(editor);
 	const titles = await Promise.all(targetLinks.map(async link => {
-		const urlString = Asciidoc.isAsciidocFile(editor.document) ? Asciidoc.getAsciidocUrl(link.target!.toString(true)) : link.target?.toString(true);
+		const urlString = AsciidocFile.isAsciidocFile(editor.document) ? AsciidocFile.getAsciidocUrl(link.target!.toString(true)) : link.target?.toString(true);
 		return getTitleFromUrl(urlString);
 	}));
+
 	const edit = new WorkspaceEdit();
 
 	for (const [index, targetLink] of targetLinks.entries()) {
@@ -80,11 +82,20 @@ function replaceLinkAtRangeEdit(edit: WorkspaceEdit, document: TextDocument, tar
 		return;
 	}
 
-	if (Asciidoc.isAsciidocFile(document)) {
-		edit.replace(document.uri, targetLink.range, `${Asciidoc.getAsciidocUrl(targetLink.target.toString(true))}[${escapeSquareBrackets(fetchedUrlTitle)}]`);
+	// ──── HTML ──────────────────────────────────────────────────
+	if (HtmlFile.isHtmlFile(document)) {
+		const rangeToReplace = HtmlFile.getRangeToReplace(document, targetLink.range.start) ?? targetLink.range;
+		edit.replace(document.uri, rangeToReplace, `<a href="${targetLink.target.toString(true)}">${fetchedUrlTitle}</a>`);
 		return;
 	}
 
+	// ──── AsciiDoc ──────────────────────────────────────────────
+	if (AsciidocFile.isAsciidocFile(document)) {
+		edit.replace(document.uri, targetLink.range, `${AsciidocFile.getAsciidocUrl(targetLink.target.toString(true))}[${escapeSquareBrackets(fetchedUrlTitle)}]`);
+		return;
+	}
+
+	// ──── Markdown ──────────────────────────────────────────────
 	if (isExistingMarkdownLinkTitle(document, targetLink)) {
 		if (!$config.replaceExistingTitle) {
 			return;
