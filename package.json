@@ -2,7 +2,7 @@
 	"name": "url-title",
 	"displayName": "Url Title",
 	"description": "Fetch html page title from url and make a markdown link out of it.",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"publisher": "usernamehw",
 	"license": "MIT",
 	"engines": {
